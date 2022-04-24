@@ -44,6 +44,8 @@ var saveTasks = function() {
   localStorage.setItem("tasks", JSON.stringify(tasks));
 };
 
+// ADDED CODE ________________________________________________________________________________________________________________________________________________
+
 $(".list-group").on("click", "p", function(){
   var text = $(this)
     .text()
@@ -139,8 +141,74 @@ $(".list-group").on("blur", "input[type='text']", function(){
     
 });
 
+$(".card .list-group").sortable({
+  connectWith: $(".card .list-group"),
+  scroll: false,
+  tolerance: "pointer",
+  helper: "clone", // tells jQuery to create a copy of the dragged element and move the copy instead of the original
+  update: function(event) {
+    // array to store the task data
+    var tempArr = [];
+
+    // loop over current set of children in sortable list
+    $(this).children().each(function() {
+      var text = $(this) //nested this refers to the child element at that index
+        .find("p") //finds the p element inside "this"
+        .text()
+        .trim();
+
+      var date = $(this)
+        .find("span")
+        .text()
+        .trim();
+
+      // add taks to the temp array as an object
+      tempArr.push({
+        text: text,
+        date: date
+      });
+        
+    });
+
+    // trim down list's ID to match object property
+    var arrName = $(this)
+      .attr("id")
+      .replace("list-", "");
+
+    // update array on tasks object and save
+    tasks[arrName] = tempArr;
+    saveTasks();
+  }
+  // activate: function(event) {
+  //   console.log("activate", this);
+  // },
+  // deactivate: function(event) {
+  //   console.log("deactivate", this);
+  // },
+  // over: function(event) {
+  //   console.log("over", event.target);
+  // },
+  // out: function(event) {
+  //   console.log("out", event.target);
+  // },
+});
+
+$("#trash").droppable({
+  accept: ".card .list-group-item",
+  tolerance: "touch",
+  drop: function(event,ui) {
+    ui.draggable.remove(); //don't need to update local storage with saveTasks(), removing a task from any list triggers a sortable update()
+  },
+  // over: function(event,ui) {
+  //   console.log("over");
+  // },
+  // out: function(event,ui) {
+  //   console.log("out");
+  // },
+});
 
 
+//END ADDED CODE _______________________________________________________________________________________________________________________________________
 
 
 
